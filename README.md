@@ -139,7 +139,7 @@ wine KSA.exe
 
 ## License
 
-This installer script is provided as-is for the KSA community. Kitten Space Agency is developed by Kitten Interactive.
+This installer script is provided as-is for the KSA community. Kitten Space Agency is developed by RocketWerkz.
 
 ## Contributing
 
