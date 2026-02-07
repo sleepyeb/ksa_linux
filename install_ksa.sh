@@ -105,6 +105,17 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}.NET 9 installed successfully${NC}"
 else
     echo -e "${RED}Failed to install .NET 9${NC}"
+    echo
+    echo "This can happen if:"
+    echo "  - Wine version is too old (requires 8.x or newer)"
+    echo "  - Winetricks is outdated (run: sudo winetricks --self-update)"
+    echo "  - Network connection issue during download"
+    echo
+    echo "Current wine version: $(wine --version)"
+    echo
+    echo "If your wine version is below 8.x, you need to upgrade wine."
+    echo "See: https://github.com/sleepyeb/ksa_linux#installing-wine-and-winetricks"
+    echo
     exit 1
 fi
 echo
