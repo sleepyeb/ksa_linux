@@ -1,0 +1,21 @@
+# Wine prefix directories
+ksa_prefix/
+*_prefix/
+
+# Wine files
+*.log
+*.reg
+
+# KSA installers
+*.exe
+
+# Backup files
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude Code directory
+.claude/
