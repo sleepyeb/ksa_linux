@@ -2,6 +2,10 @@
 
 Automated installation script for **Kitten Space Agency** on Linux using Wine.
 
+## Get Kitten Space Agency
+
+Download KSA from the official store: https://ahwoo.com/store/KPbAA1Au/kitten-space-agency
+
 ## Features
 
 - ✅ Automatically checks for Wine and Winetricks

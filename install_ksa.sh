@@ -13,6 +13,8 @@ if [ -z "$1" ]; then
     echo
     echo "Usage: $0 <path-to-ksa-installer.exe>"
     echo
+    echo "Download KSA from: https://ahwoo.com/store/KPbAA1Au/kitten-space-agency"
+    echo
     echo "Example:"
     echo "  $0 ~/Downloads/setup_ksa_v2026.2.4.3423.exe"
     echo
