@@ -180,7 +180,7 @@ echo -e "${GREEN}Launch script created${NC}"
 echo
 
 # Download icon from GitHub
-ICON_URL="https://raw.githubusercontent.com/sleepyeb/ksa_linux/main/ksa_icon.png"
+ICON_URL="https://raw.githubusercontent.com/sleepyeb/ksa_linux/main/tux_icon.png"
 ICON_DEST="$HOME/.local/share/icons/ksa.png"
 echo -e "${YELLOW}Downloading KSA icon...${NC}"
 mkdir -p "$HOME/.local/share/icons"

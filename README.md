@@ -2,8 +2,6 @@
 
 Automated installation script for **Kitten Space Agency** on Linux using Wine.
 
-![KSA Icon](ksa_icon.png)
-
 ## Features
 
 - ✅ Automatically checks for Wine and Winetricks
@@ -11,7 +9,7 @@ Automated installation script for **Kitten Space Agency** on Linux using Wine.
 - ✅ Installs .NET 9 runtime dependency
 - ✅ Detects multiple GPUs and lets you choose which to use
 - ✅ Creates launch script in the installation directory
-- ✅ Creates desktop launcher with custom icon
+- ✅ Creates desktop launcher
 - ✅ Supports NVIDIA and AMD GPU configurations
 
 ## Requirements
