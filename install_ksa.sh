@@ -188,7 +188,7 @@ WINEPREFIX="$WINEPREFIX" \\
 wine KSA.exe
 EOF
 
-chmod +x "$LAUNCH_SCRIPT"
+chmod 755 "$LAUNCH_SCRIPT"
 echo -e "${GREEN}Launch script created${NC}"
 echo
 
@@ -220,7 +220,8 @@ Terminal=false
 Categories=Game;
 EOF
 
-chmod +x "$DESKTOP_FILE"
+chmod 754 "$DESKTOP_FILE"
+gio set "$DESKTOP_FILE" metadata::trusted true 2>/dev/null || true
 echo -e "${GREEN}Desktop launcher created${NC}"
 echo
 
