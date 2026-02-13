@@ -183,9 +183,35 @@ echo -e "${YELLOW}Creating launch script at: $LAUNCH_SCRIPT${NC}"
 cat > "$LAUNCH_SCRIPT" << EOF
 #!/bin/bash
 cd "$KSA_INSTALL_DIR"
+
+WINEPREFIX="$WINEPREFIX"
+RUNNING_FLAG="\$HOME/.ksa_running"
+
+# Check if KSA crashed last time (flag file exists)
+if [ -f "\$RUNNING_FLAG" ]; then
+    echo "Detected unclean shutdown. Cleaning up..."
+
+    # Kill any lingering Wine processes
+    WINEPREFIX="\$WINEPREFIX" wineserver -k 2>/dev/null
+    sleep 1
+
+    # Clear corrupted shader cache
+    echo "Clearing shader cache..."
+    rm -rf ~/.cache/mesa_shader_cache/* 2>/dev/null
+
+    echo "Cleanup complete. Launching KSA..."
+fi
+
+# Create running flag
+touch "\$RUNNING_FLAG"
+
+# Launch KSA
 $GPU_ENV_VARS \\
-WINEPREFIX="$WINEPREFIX" \\
+WINEPREFIX="\$WINEPREFIX" \\
 wine KSA.exe
+
+# Remove running flag on clean exit
+rm -f "\$RUNNING_FLAG"
 EOF
 
 chmod 755 "$LAUNCH_SCRIPT"

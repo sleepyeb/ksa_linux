@@ -66,6 +66,14 @@ When modifying, ensure the script remains self-contained and doesn't introduce e
 - Requires Wine 8.x or newer
 - Common failure points: outdated winetricks, network issues, Wine version too old
 
+### Crash Recovery Mechanism
+The launch script includes automatic crash detection and recovery:
+- Uses flag file `~/.ksa_running` to detect unclean shutdowns
+- On crash detection: kills lingering Wine processes with `wineserver -k`
+- Clears corrupted Mesa shader cache at `~/.cache/mesa_shader_cache/*`
+- **Root cause**: KSA crashes corrupt Mesa shader cache, causing freeze-on-relaunch during shader compilation
+- This prevents the need for full Wine prefix reinstallation after crashes
+
 ### Error Handling
 Critical validation points:
 - Installer path exists (line 28)
