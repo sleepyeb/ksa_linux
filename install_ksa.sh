@@ -98,13 +98,13 @@ else
     echo
 fi
 
-# Install .NET 9
-echo -e "${YELLOW}Installing .NET 9 runtime (this may take a few minutes)...${NC}"
-WINEPREFIX="$WINEPREFIX" winetricks -q dotnet9
+# Install .NET 10
+echo -e "${YELLOW}Installing .NET 10 runtime (this may take a few minutes)...${NC}"
+WINEPREFIX="$WINEPREFIX" winetricks -q dotnet10
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}.NET 9 installed successfully${NC}"
+    echo -e "${GREEN}.NET 10 installed successfully${NC}"
 else
-    echo -e "${RED}Failed to install .NET 9${NC}"
+    echo -e "${RED}Failed to install .NET 10${NC}"
     echo
     echo "This can happen if:"
     echo "  - Wine version is too old (requires 8.x or newer)"
@@ -143,6 +143,7 @@ echo
 
 # GPU selection and environment variables
 GPU_ENV_VARS=""
+GPU_TYPE=""
 if [ "$GPU_COUNT" -gt 1 ]; then
     echo -e "${YELLOW}Which GPU would you like to use? (1-$GPU_COUNT):${NC}"
     read -r GPU_CHOICE
@@ -159,13 +160,45 @@ if [ "$GPU_COUNT" -gt 1 ]; then
     # Set environment variables based on GPU type
     if echo "$SELECTED_GPU" | grep -iq "nvidia"; then
         GPU_ENV_VARS="__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json"
+        GPU_TYPE="nvidia"
         echo -e "${GREEN}Using NVIDIA GPU with Prime offloading${NC}"
     elif echo "$SELECTED_GPU" | grep -iq "amd"; then
         GPU_ENV_VARS="DRI_PRIME=1"
+        GPU_TYPE="amd"
         echo -e "${GREEN}Using AMD GPU with DRI_PRIME${NC}"
     fi
 else
+    SELECTED_GPU="$GPUS"
+    if echo "$SELECTED_GPU" | grep -iq "nvidia"; then
+        GPU_TYPE="nvidia"
+    elif echo "$SELECTED_GPU" | grep -iq "amd"; then
+        GPU_TYPE="amd"
+    fi
     echo -e "${GREEN}Single GPU detected, using default configuration${NC}"
+fi
+echo
+
+# Install Vulkan support (DXVK)
+echo -e "${YELLOW}Installing Vulkan support (DXVK)...${NC}"
+if [ "$GPU_TYPE" = "nvidia" ]; then
+    echo -e "${YELLOW}Installing DXVK with NVIDIA Vulkan support...${NC}"
+    WINEPREFIX="$WINEPREFIX" winetricks -q dxvk dxvk_nvapi
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}DXVK and NVIDIA Vulkan support installed${NC}"
+    else
+        echo -e "${YELLOW}Warning: DXVK installation failed, continuing anyway${NC}"
+    fi
+elif [ "$GPU_TYPE" = "amd" ]; then
+    echo -e "${YELLOW}Installing DXVK for AMD GPU...${NC}"
+    WINEPREFIX="$WINEPREFIX" winetricks -q dxvk
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}DXVK installed${NC}"
+    else
+        echo -e "${YELLOW}Warning: DXVK installation failed, continuing anyway${NC}"
+    fi
+else
+    echo -e "${YELLOW}Unknown GPU type, installing DXVK anyway...${NC}"
+    WINEPREFIX="$WINEPREFIX" winetricks -q dxvk
 fi
 echo
 
@@ -186,32 +219,57 @@ cd "$KSA_INSTALL_DIR"
 
 WINEPREFIX="$WINEPREFIX"
 RUNNING_FLAG="\$HOME/.ksa_running"
+LOG_DIR="\$HOME/.ksa_logs"
+LOG_FILE="\$LOG_DIR/ksa_\$(date +%Y%m%d_%H%M%S).log"
 
-# Check if KSA crashed last time (flag file exists)
+# Create log directory and clean old logs (keep only most recent)
+mkdir -p "\$LOG_DIR"
+rm -f "\$LOG_DIR"/*.log 2>/dev/null
+
+# Check if KSA crashed last time
 if [ -f "\$RUNNING_FLAG" ]; then
     echo "Detected unclean shutdown. Cleaning up..."
-
-    # Kill any lingering Wine processes
     WINEPREFIX="\$WINEPREFIX" wineserver -k 2>/dev/null
     sleep 1
-
-    # Clear corrupted shader cache
     echo "Clearing shader cache..."
     rm -rf ~/.cache/mesa_shader_cache/* 2>/dev/null
-
-    echo "Cleanup complete. Launching KSA..."
+    echo "Cleanup complete."
 fi
 
 # Create running flag
 touch "\$RUNNING_FLAG"
 
-# Launch KSA
+echo "=== KSA Launch ===" | tee "\$LOG_FILE"
+echo "Started: \$(date)" | tee -a "\$LOG_FILE"
+echo "Log file: \$LOG_FILE" | tee -a "\$LOG_FILE"
+echo "" | tee -a "\$LOG_FILE"
+
+# Export WINEDEBUG so subprocesses inherit it (fixme-all disables fixme messages)
+export WINEDEBUG=fixme-all
+export WINEPREFIX="\$WINEPREFIX"
+
 $GPU_ENV_VARS \\
-WINEPREFIX="\$WINEPREFIX" \\
-wine KSA.exe
+DOTNET_EnableDiagnostics=1 \\
+wine KSA.exe --verbose 2>&1 | tee -a "\$LOG_FILE"
+
+EXIT_CODE=\$?
+
+# Log exit info
+echo "" | tee -a "\$LOG_FILE"
+echo "=== Exit Information ===" | tee -a "\$LOG_FILE"
+echo "Ended: \$(date)" | tee -a "\$LOG_FILE"
+echo "Exit code: \$EXIT_CODE" | tee -a "\$LOG_FILE"
 
 # Remove running flag on clean exit
-rm -f "\$RUNNING_FLAG"
+if [ \$EXIT_CODE -eq 0 ]; then
+    rm -f "\$RUNNING_FLAG"
+    echo "Clean exit" | tee -a "\$LOG_FILE"
+else
+    echo "Abnormal exit - crash flag preserved" | tee -a "\$LOG_FILE"
+fi
+
+echo "" | tee -a "\$LOG_FILE"
+echo "Debug log saved to: \$LOG_FILE"
 EOF
 
 chmod 755 "$LAUNCH_SCRIPT"
@@ -261,7 +319,7 @@ echo "Desktop launcher: $DESKTOP_FILE"
 echo
 echo -e "${GREEN}You can now launch KSA by:${NC}"
 echo "  1. Double-clicking the KSA icon on your desktop"
-echo "  2. Running: $LAUNCH_SCRIPT"
+echo "  2. Running: \"$LAUNCH_SCRIPT\""
 echo
 echo -e "${YELLOW}Note: If the game crashes on loading, try lowering texture settings in graphics options.${NC}"
 echo

@@ -12,7 +12,7 @@ Single-purpose bash installer script for Kitten Space Agency (KSA) on Linux via 
 The installer follows a linear workflow:
 1. **Validation**: Check for installer path, Wine, and Winetricks
 2. **Wine Prefix Setup**: Create/initialize WINEPREFIX directory
-3. **Dependencies**: Install .NET 9 runtime via winetricks
+3. **Dependencies**: Install .NET 10 runtime via winetricks
 4. **KSA Installation**: Run the Windows installer executable
 5. **GPU Detection**: Detect graphics cards using `lspci` and set environment variables
 6. **Launch Script**: Generate `launch_ksa.sh` with GPU-specific environment variables
@@ -32,13 +32,19 @@ The script creates:
 
 ## Development
 
+### Commit and Code Guidelines
+- **NEVER** add AI attribution in commit messages (no "Co-Authored-By: Claude" or similar)
+- **NEVER** add AI-generated comments or attribution in code
+- Multiple LLMs may be used in development - attribution is misleading and unnecessary
+- Commits should reflect the technical changes, not the tools used to create them
+
 ### Testing
 No automated tests exist. Manual testing approach:
 - Test on Ubuntu/Pop!_OS 22.04 (primary target)
 - Verify with different Wine versions (8.x, 9.x)
 - Test single-GPU and multi-GPU configurations
 - Test NVIDIA and AMD GPU paths
-- Verify .NET 9 installation with different winetricks versions
+- Verify .NET 10 installation with different winetricks versions
 
 ### Making Changes
 - The script uses `set -e` - any command failure will exit immediately
@@ -61,8 +67,8 @@ When modifying, ensure the script remains self-contained and doesn't introduce e
 - KSA installs to: `$WINEPREFIX/drive_c/Program Files/Kitten Space Agency`
 - Main executable: `KSA.exe`
 
-### .NET 9 Installation
-- Installed via `winetricks -q dotnet9`
+### .NET 10 Installation
+- Installed via `winetricks -q dotnet10`
 - Requires Wine 8.x or newer
 - Common failure points: outdated winetricks, network issues, Wine version too old
 
@@ -78,5 +84,5 @@ The launch script includes automatic crash detection and recovery:
 Critical validation points:
 - Installer path exists (line 28)
 - Wine and Winetricks are installed (lines 40, 60)
-- .NET 9 installation succeeds (line 104)
+- .NET 10 installation succeeds (line 104)
 - KSA installation directory exists after install (line 174)
