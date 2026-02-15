@@ -10,18 +10,21 @@ Download KSA from the official store: https://ahwoo.com/store/KPbAA1Au/kitten-sp
 
 - ✅ Automatically checks for Wine and Winetricks
 - ✅ Creates and configures a Wine prefix
-- ✅ Installs .NET 9 runtime dependency
+- ✅ Installs .NET 10 runtime dependency
+- ✅ Installs DXVK/Vulkan support (automatic based on GPU type)
 - ✅ Detects multiple GPUs and lets you choose which to use
-- ✅ Creates launch script in the installation directory
+- ✅ Creates launch script with debug logging and crash recovery
 - ✅ Creates desktop launcher
 - ✅ Supports NVIDIA and AMD GPU configurations
+- ✅ Automatic crash recovery with shader cache clearing
+- ✅ Debug logs saved to ~/.ksa_logs/ for bug reporting
 
 ## Requirements
 
 - Ubuntu/Pop!_OS 22.04 or similar Linux distribution
-- Wine 8.x or later (9.x+ recommended)
+- Wine 8.x or later (11.x+ recommended)
 - Winetricks (latest version recommended)
-- ~500MB free disk space for Wine prefix
+- ~1GB free disk space for Wine prefix (includes .NET 10 and DXVK)
 - ~2GB for KSA installation
 - KSA installer executable (`.exe` file)
 
@@ -50,16 +53,19 @@ For example:
 The script will:
 1. Check if Wine and Winetricks are installed
 2. Prompt you for a Wine prefix location (default: `~/ksa_prefix`)
-3. Install .NET 9 runtime
+3. Install .NET 10 runtime
 4. Run the KSA installer (choose "Install for all users" and default directory)
 5. Detect your GPUs and let you choose which one to use
-6. Create a launch script and desktop launcher
+6. Install DXVK/Vulkan support (dxvk + dxvk_nvapi for NVIDIA, dxvk for AMD)
+7. Create a launch script with debug logging and desktop launcher
 
 ### 4. Launch KSA
 
 After installation, you can launch KSA by:
 - Double-clicking the **Kitten Space Agency** icon on your desktop
-- Running the launch script: `~/ksa_prefix/drive_c/Program Files/Kitten Space Agency/launch_ksa.sh`
+- Running the launch script: `"~/ksa_prefix/drive_c/Program Files/Kitten Space Agency/launch_ksa.sh"`
+
+**Note**: The launch script includes automatic debug logging. Logs are saved to `~/.ksa_logs/` and include crash information for bug reports.
 
 ## Installing Wine and Winetricks
 
@@ -85,9 +91,10 @@ sudo winetricks --self-update
 
 ## Troubleshooting
 
-### Game crashes while loading
-- **Cause**: Insufficient VRAM or texture memory
-- **Solution**: Lower texture settings in the graphics options
+### Game crashes or freezes
+- **Automatic recovery**: The launch script detects crashes and automatically clears corrupted shader cache
+- **Debug logs**: Check `~/.ksa_logs/` for crash information to report to developers
+- **Texture settings**: If crashes persist, lower texture settings in graphics options
 
 ### Permission errors
 Make sure the script is executable:
@@ -96,11 +103,11 @@ chmod +x install_ksa.sh
 ```
 
 ### Graphics performance issues
-The script automatically detects and configures GPU offloading for:
-- **NVIDIA**: Uses PRIME offloading
-- **AMD**: Uses DRI_PRIME
+The script automatically detects and configures:
+- **NVIDIA**: PRIME offloading + DXVK with NVIDIA Vulkan support
+- **AMD**: DRI_PRIME + DXVK
 
-Make sure you have the latest graphics drivers installed for your GPU.
+DXVK provides Vulkan-based DirectX translation for better performance. Make sure you have the latest graphics drivers installed for your GPU.
 
 ### .NET installation fails
 Make sure your Wine and Winetricks are up to date:
