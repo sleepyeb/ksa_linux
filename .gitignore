@@ -17,5 +17,6 @@ ksa_prefix/
 .DS_Store
 Thumbs.db
 
-# Claude Code directory
+# Claude Code directory and files
 .claude/
+CLAUDE.md
